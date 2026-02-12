@@ -15,8 +15,8 @@ Author: PasarGuard
 Version: 0.4.2
 """
 
-__version__ = "0.4.2"
-__author__ = "PasarGuard"
+__version__ = "0.4.3"
+__author__ = "MatinDehghanian"
 
 
 from enum import Enum
