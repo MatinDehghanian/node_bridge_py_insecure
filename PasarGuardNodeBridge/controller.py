@@ -44,8 +44,10 @@ class Controller:
         logger: logging.Logger | None = None,
         default_timeout: int = DEFAULT_API_TIMEOUT,
         internal_timeout: int = DEFAULT_INTERNAL_TIMEOUT,
+        no_tls: bool = False,
     ):
         self.name = name
+        self._no_tls = no_tls
         if extra is None:
             extra = {}
         if logger is None:
@@ -62,10 +64,13 @@ class Controller:
         try:
             self.api_key = UUID(api_key)
 
-            self.ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-            self.ctx.set_alpn_protocols(["h2"])
-            self.ctx.load_verify_locations(cadata=server_ca)
-            self.ctx.check_hostname = True
+            if no_tls:
+                self.ctx = None
+            else:
+                self.ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+                self.ctx.set_alpn_protocols(["h2"])
+                self.ctx.load_verify_locations(cadata=server_ca)
+                self.ctx.check_hostname = True
 
         except ssl.SSLError as e:
             raise NodeAPIError(-1, f"SSL initialization failed: {str(e)}")
@@ -105,7 +110,7 @@ class Controller:
         )
         self._json_client = httpx.AsyncClient(
             http2=True,
-            verify=self.ctx,
+            verify=False if no_tls else self.ctx,
             headers={"Content-Type": "application/json", "x-api-key": api_key},
             base_url=service_url,
             timeout=httpx_timeout,

@@ -28,11 +28,13 @@ class Node(PasarGuardNode):
         default_timeout: int = 10,
         internal_timeout: int = 15,
         max_message_size: int | None = None,
+        no_tls: bool = False,
         **kwargs,
     ):
         host_for_url = format_host_for_url(address)
-        service_url = f"https://{host_for_url}:{api_port}/"
-        super().__init__(server_ca, api_key, service_url, name, extra, logger, default_timeout, internal_timeout)
+        scheme = "http" if no_tls else "https"
+        service_url = f"{scheme}://{host_for_url}:{api_port}/"
+        super().__init__(server_ca, api_key, service_url, name, extra, logger, default_timeout, internal_timeout, no_tls)
 
         try:
             # Set HTTP/2 window sizes to 64MB to handle large node configurations

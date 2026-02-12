@@ -25,16 +25,18 @@ class Node(PasarGuardNode):
         logger: logging.Logger | None = None,
         default_timeout: int = 10,
         internal_timeout: int = 15,
+        no_tls: bool = False,
         **kwargs,
     ):
         host_for_url = format_host_for_url(address)
-        service_url = f"https://{host_for_url}:{api_port}/"
-        super().__init__(server_ca, api_key, service_url, name, extra, logger, default_timeout, internal_timeout)
+        scheme = "http" if no_tls else "https"
+        service_url = f"{scheme}://{host_for_url}:{api_port}/"
+        super().__init__(server_ca, api_key, service_url, name, extra, logger, default_timeout, internal_timeout, no_tls)
 
-        url = f"https://{host_for_url}:{port}/"
+        url = f"{scheme}://{host_for_url}:{port}/"
         self._client = httpx.AsyncClient(
             http2=True,
-            verify=self.ctx,
+            verify=False if no_tls else self.ctx,
             headers={"Content-Type": "application/x-protobuf", "x-api-key": api_key},
             base_url=url,
             timeout=httpx.Timeout(None),

@@ -37,8 +37,9 @@ def create_node(
     connection: NodeType,
     address: str,
     port: int,
-    server_ca: str,
-    api_key: str,
+    server_ca: str = "",
+    api_key: str = "",
+    no_tls: bool = False,
     **kwargs,
 ) -> PasarGuardNode:
     """
@@ -51,8 +52,9 @@ def create_node(
         connection (NodeType): Type of node connection. Must be `NodeType.grpc` or `NodeType.rest`.
         address (str): IP address or domain name of the node.
         port (int): Port number used to connect to the node.
-        server_ca (str): The server's SSL certificate as a string (PEM format).
+        server_ca (str): The server's SSL certificate as a string (PEM format). Can be empty if no_tls=True.
         api_key (str): API key used for authentication with the node.
+        no_tls (bool): If True, disables TLS/SSL for insecure connections. Defaults to False.
         **kwargs: Additional optional arguments:
             - name (str): Node instance name for logging. Defaults to "default".
             - extra (dict): Optional dictionary to pass custom metadata or configuration. Defaults to {}.
@@ -90,6 +92,7 @@ def create_node(
 
     Note:
         - SSL certificate values should be passed as strings, not file paths.
+        - When no_tls=True, server_ca can be empty (SSL is disabled).
         - Use `extra` to inject any environment-specific settings or context.
         - Timeout values can be overridden per-call in individual API methods.
     """
@@ -100,6 +103,7 @@ def create_node(
             port=port,
             server_ca=server_ca,
             api_key=api_key,
+            no_tls=no_tls,
             **kwargs,
         )
 
@@ -109,6 +113,7 @@ def create_node(
             port=port,
             server_ca=server_ca,
             api_key=api_key,
+            no_tls=no_tls,
             **kwargs,
         )
 
